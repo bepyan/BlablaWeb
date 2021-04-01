@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>횡설수설 - BlahBlah</title>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.js"></script>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                  <img class="navbar-brand" src="https://img.icons8.com/ios/50/000000/computer-chat.png">
+                  <a class="navbar-brand" href="#" style="font-family: Cochin; font-weight: 500;">횡설수설 - BlahBlah</a>
+                </div>
+            </div>
+        </nav>
+        <div class="container"></div>
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-5">
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-size: large; font-weight: bold;">문장 입력</div>
+                        <form id="translateForm">
+                            <textarea class="form-control" rows="15" id="input" autofocus maxlength=5000 placeholder="문장을 입력하세요."
+                            style="border-color: #ffffff; font-size:large; resize:none;"
+                            ></textarea>
+                            <div class="panel-footer">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                         <p id="txtCount" class="text-right"><small>0 / 5000</small></p>   
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-warning btn-block btn-lg" id="reset" data-loading-text="..." type="button">초기화</button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button class="btn btn-info btn-block btn-lg" id="request" data-loading-text="생성중..." type="submit">생성</button>
+                                      </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="font-size: large; font-weight: bold;">생성 결과</div>
+                        <div class="panel-body">
+                            <div id="output"></div>
+                        </div>
+                        <div class="panel-footer">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="btn btn-warning btn-block" id="autoSelect1" data-loading-text="선택중..." type="button">1순위 자동 선택</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-warning btn-block" id="autoSelect2" data-loading-text="선택중..." type="button">무작위 자동 선택</button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger btn-block" id="autoCreate" data-loading-text="생성중..." type="button" data-toggle="tooltip" data-placement="bottom" title="[주의]</br>추가 생성 시</br>수식어 선택이 초기화됩니다." data-html="true">문장 추가 생성</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-right" style="font-family: Cochin;"> 김평안 <img src="https://img.icons8.com/color/48/000000/batman.png"> </p>
+                        <p class="text-right" style="font-family: Cochin;"> 장민준 <img src="https://img.icons8.com/color/48/000000/super-mario.png"></p>
+                        <p class="text-right" style="font-family: Cochin;"> 이지우 <img src="https://img.icons8.com/color/48/000000/jake.png"></p>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+            </div>
+        </div>
+    </body>
+    <footer>
+        <script> 
+        	var rank = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
+            var predictData = [];
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
+
+            $(function () {
+                $('[data-toggle="popover"]').popover()
+            })
+            
+            $('#input').on('keyup',function() {
+                document.getElementById('txtCount').innerHTML = '<small>' + $(this).val().length + ' / 5000</small>'
+                if($(this).val().length>5000) {
+                    alert("글자수는 5000자 이내 제한됩니다.");
+                    $(this).val($(this).val().substring(0,5000));
+                }
+            })
+
+            $('#reset').on('click',function() {
+                var $btn = $('#reset').button('loading')
+				$('#input').val('');
+            	document.getElementById('txtCount').innerHTML = '<small>' + $(this).val().length + ' / 5000</small>'
+                $btn.button('reset')
+            })
+
+            function autoSelectFirst() {
+                noun = [];
+                for(var i=0; i<predictData.length; i++) {
+                    if (noun.includes(predictData[i][0]) == false) {
+                        noun.push(predictData[i][0]);
+                        select(i, 0);
+                    }
+                }
+            }
+
+            $('#autoSelect1').on('click',function() {
+                var $btn = $('#autoSelect1').button('loading')
+                autoSelectFirst()
+                $btn.button('reset')
+            })
+
+            $('#autoSelect2').on('click',function() {
+                var $btn = $('#autoSelect2').button('loading')
+                noun = [];
+                for(var i=0; i<predictData.length; i++) {
+                    if (noun.includes(predictData[i][0]) == false) {
+                        noun.push(predictData[i][0]);
+                        select(i, Math.floor(Math.random() * 5));
+                    }
+                }
+                $btn.button('reset')
+            })
+
+            $('#autoCreate').on('click', function(event) {
+                if(transData.length>10000) {
+                    alert("9000자를 초과하여 더 추가할 수 없습니다.");
+                }
+                else {
+                    $('#autoCreate').button('loading')
+                    inputData = transData;
+                    event.preventDefault();
+                    request();
+                }
+            })
+
+
+            $('#translateForm').on('submit', function(event) {
+                $('#request').button('loading')
+                inputData = $("#input").val();
+                event.preventDefault();
+                request();
+            });
+
+            function request() {
+                $('[data-toggle="popover"]').popover('hide')
+                $.ajax({
+                    url: "nextSentence",
+                    type: "post",
+                    async: false,
+                    data: {'input': inputData},
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    success: function(data) {
+                        transData = data;
+                        $('#output').html(data);
+                    }
+                });
+
+                $.ajax({
+                    url: "translate",
+                    type: "post",
+                    data: {'input': $('#output').html()},
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    success: function(data) {
+                        predictData = JSON.parse(data);
+                        outputData = $("#output").html();
+                        for(var i=0; i<predictData.length; i++) {
+                            outputData = outputData.replace(predictData[i][0], '<>' + i + '<>')
+                        }
+                        for(var i=0; i<predictData.length; i++) {
+                            dataContent = '';
+                            for (var j=0; j<predictData[i][1].length; j++) {
+                                 if (predictData[i][1][j][2].length>0) { //if (predictData[i][1][j][2][1]>0) {
+                                    dataContent = dataContent + '<a onclick=javascript:select(' + i + ',' + j + ')>' + predictData[i][1][j][2][0][0] + '</a> <span class=\'label label-info\'>' + predictData[i][1][j][1] + '%</span><br>'
+                                 }
+                            }
+                            
+                            outputData = outputData.replace('<>' + i + '<>', '<mark id="' + i + '" data-container="body" data-toggle="popover" data-placement="bottom" title="수식어 선택" data-content=\"'+ dataContent +'\" data-html="true">' + predictData[i][0] + '</mark>')
+                        }
+                        outputData = outputData.replace(/\n/gi, "</br>"); 
+                        $('#output').html(outputData);
+                        $('#autoCreate').button('reset')
+                        $('#request').button('reset')
+                        $('[data-toggle="popover"]').popover()
+                    }
+                });
+            }
+            
+            function select(nounID, vrbID) {
+            	$('[data-toggle="popover"]').popover('hide')
+                // alert("명사: " + predictData[nounID][0] + "\n수식어(원형): " + predictData[nounID][1][vrbID][0] + "\n수식어(실제): " + predictData[nounID][1][vrbID][2][vrbToID]);
+                if (predictData[nounID][1].length>vrbID) {
+                    dataContent = '<p class="text-right"><a onclick=javascript:selectTo(' + nounID + ',' + vrbID + ',-1)>수식어 삭제</a></p>';
+                    for (var i=0; i<predictData[nounID][1][vrbID][2].length; i++) {
+                        //if (predictData[nounID][1][vrbID][2][i][1]>0) {
+                            dataContent = dataContent + '<a onclick=javascript:selectTo(' + nounID + ',' + vrbID + ',' + i + ')>' + predictData[nounID][1][vrbID][2][i][0] + '</a> <span class=\'label label-info\'>' + predictData[nounID][1][vrbID][2][i][1] + '%</span><br>'
+                        //}
+                    }
+                    document.getElementById(nounID).setAttribute('data-content', dataContent);
+                    document.getElementById(nounID).innerHTML = '<mark>' + predictData[nounID][1][vrbID][2][0][0] + '</mark> ' + predictData[nounID][0];
+                    $('[data-toggle="popover"]').popover('hide')
+                }
+                else {
+                    document.getElementById(nounID).setAttribute('data-content', '데이터 없음');
+                    $('[data-toggle="popover"]').popover('hide')
+                }
+            }
+            function selectTo(nounID, vrbID, vrbToID) {
+            	$('[data-toggle="popover"]').popover('hide')
+                // alert("명사: " + predictData[nounID][0] + "\n수식어(원형): " + predictData[nounID][1][vrbID][0] + "\n수식어(실제): " + predictData[nounID][1][vrbID][2][vrbToID]);
+                if (vrbToID == -1) {
+                    dataContent = '';
+                    for (var j=0; j<predictData[nounID][1].length; j++) {
+                         //if (predictData[i][1][j][2][1]>0) {
+                            dataContent = dataContent + '<a onclick=javascript:select(' + nounID + ',' + j + ')>' + predictData[nounID][1][j][2][0][0] + '</a> <span class=\'label label-info\'>' + predictData[nounID][1][j][1] + '%</span><br>'
+                         //}
+                    }
+                    document.getElementById(nounID).setAttribute('data-content', dataContent);
+                    document.getElementById(nounID).innerHTML = predictData[nounID][0];
+                }
+                else {
+                document.getElementById(nounID).innerHTML = '<mark>' + predictData[nounID][1][vrbID][2][vrbToID][0] + '</mark> ' + predictData[nounID][0];
+                }
+                $('[data-toggle="popover"]').popover('hide')
+            }
+        </script>
+    </footer>
+</html>
